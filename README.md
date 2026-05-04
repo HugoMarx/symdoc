@@ -1,2 +1,2 @@
 # symdoc
-A fast CLI client to browse Symfony documentation.
+A small CLI client to browse Symfony documentation.
