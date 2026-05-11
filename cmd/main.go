@@ -1,11 +1,11 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"symdoc/internal/config"
@@ -30,8 +30,8 @@ type model struct {
 
 var (
 	titleStyle = func() lipgloss.Style {
-		b := lipgloss.BlockBorder()
-		return lipgloss.NewStyle().BorderStyle(b).Padding(1, 5).Margin(1, 0)
+		b := lipgloss.RoundedBorder()
+		return lipgloss.NewStyle().BorderStyle(b).Padding(0, 5).Margin(1, 0)
 	}()
 
 	infoStyle = func() lipgloss.Style {
@@ -119,21 +119,13 @@ func (m model) footerView() string {
 }
 
 func getMainTitle(filePath string) string {
-	reader, err := os.Open(filePath)
+	fileContent, err := os.ReadFile(filePath)
 	if err != nil {
-		return "undefined"
+		return filePath
 	}
 
-	scanner := bufio.NewScanner(reader)
-	for scanner.Scan() {
-		if strings.Contains(scanner.Text(), "title") {
-			return strings.TrimSpace(strings.Replace(scanner.Text(), "title: ", "", 1))
-		}
-	}
+	pattern := regexp.MustCompile(`^#\s+(.+)`)
+	match := pattern.FindSubmatch(fileContent)
 
-	if err := scanner.Err(); err != nil {
-		return ""
-	}
-
-	return ""
+	return string(match[1])
 }
